@@ -1,9 +1,9 @@
 /* ==========================================================
    COLLINS FOR COUNTY COUNCIL — DISTRICT 2
-   Shared stylesheet · v9
+   Shared stylesheet · v10
    ⚠ REPLACE THE ENTIRE style.css FILE WITH THIS.
    Verify after deploy: collinsforcouncil.com/style.css must
-   begin with "v9". If it doesn't, it isn't live yet.
+   begin with "v10". If it doesn't, it isn't live yet.
 
    WHAT v6 DOES (on top of v5):
    · One centered column — every surface aligns to the same axis
@@ -199,25 +199,34 @@ a:hover{ text-decoration-thickness:2px; }
   .rules hr:last-child{ animation-delay:.15s; }
   @keyframes draw{ from{ transform:scaleX(0); } to{ transform:scaleX(1); } }
 
-  @supports ((-webkit-background-clip:text) or (background-clip:text)){
-    .nameplate a{
-      /* background-color is ALSO clipped to the glyphs, so if the gradient
-         hasn't painted yet the letters are still solid ink — never blank. */
-      background-color:var(--ink);
+  /* NAMEPLATE GLEAM
+     No background-clip:text anywhere. Animating a text-clipped element
+     makes the browser promote it to its own layer, and during promotion
+     it can paint the element's BOX for a frame before applying the clip —
+     that was the white rectangle.
+
+     Instead: a band sweeps across on an overlay set to mix-blend-mode
+     :lighten, which keeps the lighter of band and backdrop per channel.
+     The band (#B8941F) is darker than the gold field in every channel,
+     so over the background the gold always wins and the band is
+     mathematically invisible. Over the near-black lettering the band
+     wins, so the gleam appears on the glyphs and nowhere else.
+     No clip to fail. No box to flash. */
+  @supports (mix-blend-mode:lighten){
+    .nameplate a{ position:relative; display:inline-block; }
+    .nameplate a::after{
+      content:"";
+      position:absolute; inset:0;
+      pointer-events:none;
       background-image:linear-gradient(105deg,
-        var(--ink) 44%, #6b5c2e 50%, var(--ink) 56%);
-      background-size:250% 100%;
+        transparent 43%, #B8941F 50%, transparent 57%);
+      background-size:260% 100%;
       background-repeat:no-repeat;
-      background-position:-40% 0;     /* resting state = end of the sweep */
-      -webkit-background-clip:text;
-      background-clip:text;
-      color:transparent;
-      /* No delay: there is no window where the text sits invisible. */
-      animation:sheen 1.1s var(--ease) 1 both;
+      background-position:140% 0;
+      mix-blend-mode:lighten;
+      animation:sheen 1.15s var(--ease) 1 forwards;
     }
-    @keyframes sheen{
-      from{ background-position:130% 0; }
-    }
+    @keyframes sheen{ to{ background-position:-50% 0; } }
   }
 }
 
