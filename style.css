@@ -1,9 +1,9 @@
 /* ==========================================================
    COLLINS FOR COUNTY COUNCIL — DISTRICT 2
-   Shared stylesheet · v7
+   Shared stylesheet · v8
    ⚠ REPLACE THE ENTIRE style.css FILE WITH THIS.
    Verify after deploy: collinsforcouncil.com/style.css must
-   begin with "v7". If it doesn't, it isn't live yet.
+   begin with "v8". If it doesn't, it isn't live yet.
 
    WHAT v6 DOES (on top of v5):
    · One centered column — every surface aligns to the same axis
@@ -21,7 +21,7 @@
   --ink:       #14120C;
   --ink-2:     #5A5342;   /* paper surfaces only — never on gold */
   --paper:     #FDFBF4;
-  --paper-2:   #F4EEDC;
+  --paper-2:   #F8F2E2;
   --hair:      rgba(20,18,12,.16);
 
   /* Fluid type scale (1.24 ratio, 360px → 1200px) */
@@ -302,6 +302,44 @@ a:hover{ text-decoration-thickness:2px; }
 }
 
 /* ---------- 8. PLANKS & LISTS ---------- */
+/* ORDERED STEPS — used where sequence carries meaning.
+   Unlike .plank (an unordered set), .steps says: this order matters.
+   Numerals are Ultra + tabular, echoing the ledger figures. */
+.steps{ counter-reset:step; margin:var(--sp-m) 0 0; }
+.step{
+  position:relative;
+  padding:0 0 var(--sp-l) 4rem;
+}
+.step:last-of-type{ padding-bottom:0; }
+.step::before{
+  counter-increment:step;
+  content:counter(step);
+  position:absolute; left:0; top:-.12em;
+  width:2.6rem; text-align:center;
+  font-family:"Ultra", Georgia, serif;
+  font-size:var(--step-3); line-height:1;
+  font-variant-numeric:tabular-nums lining-nums;
+  color:var(--gold-deep);
+}
+/* the connector: a hairline that fades as it descends */
+.step::after{
+  content:""; position:absolute;
+  left:1.3rem; top:2.4rem; bottom:.5rem; width:2px;
+  background:linear-gradient(rgba(138,109,18,.45), rgba(138,109,18,.06));
+}
+.step:last-of-type::after{ display:none; }
+.step h3{ margin:0 0 .25rem; }
+.step p{ margin:0; }
+
+/* capstone line — same treatment as the ledger total */
+.steps-total{
+  margin:var(--sp-m) 0 0; padding-top:var(--sp-s);
+  border-top:2px solid var(--ink);
+  font-family:"Zilla Slab", Georgia, serif;
+  font-weight:700; font-size:var(--step-1);
+  max-width:none;
+}
+
 .plank{ padding-left:var(--sp-s); border-left:3px solid var(--gold-deep); }
 .plank + .plank{ margin-top:var(--sp-m); }
 .plank h3{ margin:0 0 .3rem; }
@@ -496,9 +534,12 @@ a:hover{ text-decoration-thickness:2px; }
   .band--hero h1{ font-size:clamp(2.9rem, 4.2vw, 3.9rem); }
   .band--hero .open{ padding:clamp(2.5rem, 4vw, 3.5rem); }
 
-  /* More air between sections when there's room for it */
-  .band{ padding-block:var(--sp-2xl); }
-  .band--tight{ padding-block:var(--sp-xl); }
+  /* More air between sections when there's room for it.
+     NOTE: .band--hero must be re-declared AFTER .band here, or the
+     generic rule overrides the hero's own padding and opens a moat. */
+  .band{ padding-block:var(--sp-xl); }
+  .band--tight{ padding-block:var(--sp-l); }
+  .band--hero{ padding-block:var(--sp-m) var(--sp-xl); }
 }
 
 /* 15b. Large desktop: scale the entire system up one notch.
