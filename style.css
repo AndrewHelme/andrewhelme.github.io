@@ -1,9 +1,9 @@
 /* ==========================================================
    COLLINS FOR COUNTY COUNCIL — DISTRICT 2
-   Shared stylesheet · v10
+   Shared stylesheet · v11
    ⚠ REPLACE THE ENTIRE style.css FILE WITH THIS.
    Verify after deploy: collinsforcouncil.com/style.css must
-   begin with "v10". If it doesn't, it isn't live yet.
+   begin with "v11". If it doesn't, it isn't live yet.
 
    WHAT v6 DOES (on top of v5):
    · One centered column — every surface aligns to the same axis
@@ -50,6 +50,10 @@
   /* Smoothed spring — eases out with no overshoot */
   --spring: linear(0, .28 12%, .57 24%, .8 38%, .94 55%, 1 100%);
   --ease:   cubic-bezier(.25, .9, .35, 1);
+  /* True sine ease-in-out, sampled at 10% intervals. Symmetrical and
+     gentle at both ends — how light actually travels across a surface. */
+  --glide:  linear(0, 0.024 10%, 0.095 20%, 0.206 30%, 0.345 40%, 0.5 50%,
+                   0.655 60%, 0.794 70%, 0.905 80%, 0.976 90%, 1);
 }
 
 /* ---------- 2. BASE ---------- */
@@ -189,44 +193,73 @@ a:hover{ text-decoration-thickness:2px; }
 .rules hr:first-child{ height:4px; }
 .rules hr:last-child{ height:1px; margin-top:3px; }
 
-/* On load, once: the rules draw themselves like pen strokes,
-   and a single sheen of light crosses the nameplate. Then still. */
+/* ---- MASTHEAD OVERTURE ----------------------------------------
+   One orchestrated moment on load, in three beats:
+     0.00s  the heavy rule draws itself, left to right
+     0.12s  the hairline follows
+     0.55s  a gleam travels across the lettering and is gone
+
+   Every property animated here is `transform` only, so the whole
+   sequence runs on the compositor — no layout, no repaint, no jank.
+   The gleam is built from two layers, the way a real specular
+   highlight is: a narrow bright core with a wider soft halo trailing
+   a fraction behind it. Both are set to mix-blend-mode:lighten in
+   colours verified to be darker than the gold field in every channel,
+   so they can only ever appear on the dark lettering.        */
 @media (prefers-reduced-motion:no-preference){
+
   .rules hr{
     transform-origin:left center;
-    animation:draw .8s var(--ease) both;
+    animation:draw .95s var(--glide) both;
   }
-  .rules hr:last-child{ animation-delay:.15s; }
-  @keyframes draw{ from{ transform:scaleX(0); } to{ transform:scaleX(1); } }
+  .rules hr:last-child{ animation-delay:.12s; }
+  @keyframes draw{ from{ transform:scaleX(0); } }
 
-  /* NAMEPLATE GLEAM
-     No background-clip:text anywhere. Animating a text-clipped element
-     makes the browser promote it to its own layer, and during promotion
-     it can paint the element's BOX for a frame before applying the clip —
-     that was the white rectangle.
-
-     Instead: a band sweeps across on an overlay set to mix-blend-mode
-     :lighten, which keeps the lighter of band and backdrop per channel.
-     The band (#B8941F) is darker than the gold field in every channel,
-     so over the background the gold always wins and the band is
-     mathematically invisible. Over the near-black lettering the band
-     wins, so the gleam appears on the glyphs and nowhere else.
-     No clip to fail. No box to flash. */
   @supports (mix-blend-mode:lighten){
     .nameplate a{ position:relative; display:inline-block; }
+
+    .nameplate a::before,
     .nameplate a::after{
       content:"";
       position:absolute; inset:0;
       pointer-events:none;
-      background-image:linear-gradient(105deg,
-        transparent 43%, #B8941F 50%, transparent 57%);
-      background-size:260% 100%;
-      background-repeat:no-repeat;
-      background-position:140% 0;
       mix-blend-mode:lighten;
-      animation:sheen 1.15s var(--ease) 1 forwards;
+      will-change:transform;
+      backface-visibility:hidden;   /* keeps the layer crisp while it moves */
     }
-    @keyframes sheen{ to{ background-position:-50% 0; } }
+
+    /* halo — wide, low intensity, trails slightly */
+    .nameplate a::before{
+      width:34%;
+      background:linear-gradient(100deg,
+        rgba(184,148,31,0)    0%,
+        rgba(184,148,31,.07) 22%,
+        rgba(184,148,31,.22) 40%,
+        rgba(184,148,31,.30) 50%,
+        rgba(184,148,31,.22) 60%,
+        rgba(184,148,31,.07) 78%,
+        rgba(184,148,31,0)  100%);
+      transform:translate3d(-190%,0,0);
+      animation:glide-halo 1.75s var(--glide) .55s 1 forwards;
+    }
+
+    /* core — narrow, bright, arrives first */
+    .nameplate a::after{
+      width:13%;
+      background:linear-gradient(100deg,
+        rgba(198,159,37,0)    0%,
+        rgba(198,159,37,.18) 28%,
+        rgba(199,160,38,.72) 50%,
+        rgba(198,159,37,.18) 72%,
+        rgba(198,159,37,0)  100%);
+      transform:translate3d(-500%,0,0);
+      animation:glide-core 1.55s var(--glide) .55s 1 forwards;
+    }
+
+    /* Each band is a different width, so the percentages differ but the
+       distance travelled across the nameplate is identical. */
+    @keyframes glide-halo{ to{ transform:translate3d(480%,0,0); } }
+    @keyframes glide-core{ to{ transform:translate3d(1270%,0,0); } }
   }
 }
 
