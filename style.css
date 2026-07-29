@@ -1,9 +1,9 @@
 /* ==========================================================
    COLLINS FOR COUNTY COUNCIL — DISTRICT 2
-   Shared stylesheet · v11
+   Shared stylesheet · v12
    ⚠ REPLACE THE ENTIRE style.css FILE WITH THIS.
    Verify after deploy: collinsforcouncil.com/style.css must
-   begin with "v11". If it doesn't, it isn't live yet.
+   begin with "v12". If it doesn't, it isn't live yet.
 
    WHAT v6 DOES (on top of v5):
    · One centered column — every surface aligns to the same axis
@@ -194,25 +194,27 @@ a:hover{ text-decoration-thickness:2px; }
 .rules hr:last-child{ height:1px; margin-top:3px; }
 
 /* ---- MASTHEAD OVERTURE ----------------------------------------
-   One orchestrated moment on load, in three beats:
+   One slow, quiet moment on load, in three beats:
      0.00s  the heavy rule draws itself, left to right
-     0.12s  the hairline follows
-     0.55s  a gleam travels across the lettering and is gone
+     0.18s  the hairline follows
+     0.90s  a gleam drifts across the lettering and dissolves
 
-   Every property animated here is `transform` only, so the whole
-   sequence runs on the compositor — no layout, no repaint, no jank.
-   The gleam is built from two layers, the way a real specular
-   highlight is: a narrow bright core with a wider soft halo trailing
-   a fraction behind it. Both are set to mix-blend-mode:lighten in
-   colours verified to be darker than the gold field in every channel,
-   so they can only ever appear on the dark lettering.        */
+   Only `transform` and `opacity` are animated — the two properties a
+   browser can hand entirely to the GPU — so nothing repaints.
+
+   The gleam is two layers, like a real specular highlight: a soft
+   bright core with a much wider, fainter halo trailing behind it.
+   Neither slides in from off-screen; each fades up as it arrives and
+   fades away as it leaves, so there is no hard entry or exit. Colours
+   are all darker than the gold field in every channel, so under
+   mix-blend-mode:lighten they can only appear on the dark lettering. */
 @media (prefers-reduced-motion:no-preference){
 
   .rules hr{
     transform-origin:left center;
-    animation:draw .95s var(--glide) both;
+    animation:draw 1.25s var(--glide) both;
   }
-  .rules hr:last-child{ animation-delay:.12s; }
+  .rules hr:last-child{ animation-delay:.18s; }
   @keyframes draw{ from{ transform:scaleX(0); } }
 
   @supports (mix-blend-mode:lighten){
@@ -223,43 +225,55 @@ a:hover{ text-decoration-thickness:2px; }
       content:"";
       position:absolute; inset:0;
       pointer-events:none;
+      opacity:0;
       mix-blend-mode:lighten;
-      will-change:transform;
-      backface-visibility:hidden;   /* keeps the layer crisp while it moves */
+      will-change:transform, opacity;
+      backface-visibility:hidden;
     }
 
-    /* halo — wide, low intensity, trails slightly */
+    /* halo — very wide, very faint, trails behind */
     .nameplate a::before{
-      width:34%;
+      width:52%;
       background:linear-gradient(100deg,
         rgba(184,148,31,0)    0%,
-        rgba(184,148,31,.07) 22%,
-        rgba(184,148,31,.22) 40%,
-        rgba(184,148,31,.30) 50%,
-        rgba(184,148,31,.22) 60%,
-        rgba(184,148,31,.07) 78%,
+        rgba(184,148,31,.04) 18%,
+        rgba(184,148,31,.12) 34%,
+        rgba(184,148,31,.20) 50%,
+        rgba(184,148,31,.12) 66%,
+        rgba(184,148,31,.04) 82%,
         rgba(184,148,31,0)  100%);
-      transform:translate3d(-190%,0,0);
-      animation:glide-halo 1.75s var(--glide) .55s 1 forwards;
+      animation:glide-halo 3.4s var(--glide) .9s 1 forwards;
     }
 
-    /* core — narrow, bright, arrives first */
+    /* core — softer and wider than before, and half as bright */
     .nameplate a::after{
-      width:13%;
+      width:22%;
       background:linear-gradient(100deg,
         rgba(198,159,37,0)    0%,
-        rgba(198,159,37,.18) 28%,
-        rgba(199,160,38,.72) 50%,
-        rgba(198,159,37,.18) 72%,
+        rgba(198,159,37,.08) 20%,
+        rgba(198,159,37,.26) 36%,
+        rgba(199,160,38,.45) 50%,
+        rgba(198,159,37,.26) 64%,
+        rgba(198,159,37,.08) 80%,
         rgba(198,159,37,0)  100%);
-      transform:translate3d(-500%,0,0);
-      animation:glide-core 1.55s var(--glide) .55s 1 forwards;
+      animation:glide-core 3s var(--glide) .9s 1 forwards;
     }
 
-    /* Each band is a different width, so the percentages differ but the
-       distance travelled across the nameplate is identical. */
-    @keyframes glide-halo{ to{ transform:translate3d(480%,0,0); } }
-    @keyframes glide-core{ to{ transform:translate3d(1270%,0,0); } }
+    /* Different widths, identical distance travelled (200% of the
+       nameplate). The long opacity ramps are what remove the last of
+       the harshness — the light arrives and leaves, it never appears. */
+    @keyframes glide-halo{
+      0%   { transform:translate3d(-106%,0,0); opacity:0; }
+      26%  { opacity:1; }
+      74%  { opacity:1; }
+      100% { transform:translate3d(279%,0,0); opacity:0; }
+    }
+    @keyframes glide-core{
+      0%   { transform:translate3d(-250%,0,0); opacity:0; }
+      24%  { opacity:1; }
+      76%  { opacity:1; }
+      100% { transform:translate3d(659%,0,0); opacity:0; }
+    }
   }
 }
 
