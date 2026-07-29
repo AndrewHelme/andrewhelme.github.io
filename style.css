@@ -1,27 +1,31 @@
 /* ==========================================================
    COLLINS FOR COUNTY COUNCIL — DISTRICT 2
-   Shared stylesheet · v3
+   Shared stylesheet · v5
+   ⚠ REPLACE THE ENTIRE style.css FILE WITH THIS.
+   If the live site's /style.css does not begin with this exact
+   header, this file is not deployed yet.
 
    TYPE SYSTEM — three faces, three jobs:
      Ultra ......... nameplate, one H1 per page, ledger figures
      Zilla Slab .... section headings, pull quotes
      Open Sans ..... reading text, nav, buttons, captions
 
-   MOTION PRINCIPLES:
-     Everything is CSS-only (scroll-driven animations), guarded by
-     @supports and prefers-reduced-motion. No JavaScript anywhere.
-     Content is visible by default; animation is an enhancement.
+   READABILITY RULE (v5):
+     Reading text never sits on the gold. Every paragraph lives
+     on a paper surface. Gold is the field BETWEEN sections.
+
+   MOTION: CSS-only, guarded by @supports and reduced-motion.
    ========================================================== */
 
 /* ---------- 1. TOKENS ---------- */
 :root{
   --gold:      #C9A227;
   --gold-deep: #8A6D12;
-  --ink:       #17150F;
-  --ink-2:     #57503F;
+  --ink:       #14120C;
+  --ink-2:     #5A5342;   /* secondary text — used on paper only, never on gold */
   --paper:     #FDFBF4;
   --paper-2:   #F4EEDC;
-  --hair:      rgba(23,21,15,.16);
+  --hair:      rgba(20,18,12,.16);
 
   /* Fluid type scale (1.24 ratio, 360px → 1200px) */
   --step--1: clamp(.94rem, .92rem + .10vw, 1.00rem);
@@ -46,8 +50,6 @@
   --wide:    46rem;
   --page:    70rem;
 
-  /* Spring-flavored ease, expressed as a linear() curve.
-     Falls back to the cubic-bezier below where unsupported. */
   --spring: linear(0, .22 9%, .48 18%, .74 28%, .92 40%, 1.01 55%, 1 100%);
   --ease:   cubic-bezier(.22, 1, .36, 1);
 }
@@ -97,7 +99,7 @@ h2,h3,h4{
 h2{ font-size:var(--step-3); margin-top:var(--sp-l); }
 h3{ font-size:var(--step-1); margin-top:var(--sp-m); font-weight:700; }
 
-.sheet > :first-child, .card > :first-child{ margin-top:0; }
+.sheet > :first-child, .card > :first-child, .open > :first-child{ margin-top:0; }
 
 p{ margin:0 0 var(--sp-s); max-width:var(--measure); text-wrap:pretty; }
 
@@ -109,7 +111,7 @@ p{ margin:0 0 var(--sp-s); max-width:var(--measure); text-wrap:pretty; }
   font-weight:700;
   letter-spacing:.14em;
   text-transform:uppercase;
-  color:var(--ink-2);
+  color:var(--ink);
   margin:0 0 var(--sp-xs);
 }
 
@@ -132,7 +134,7 @@ a:hover{ text-decoration-thickness:2px; }
 }
 .skip:focus{ left:0; }
 
-/* ---------- 4. LAYOUT ---------- */
+/* ---------- 4. LAYOUT & SURFACES ---------- */
 .wrap{ width:min(100% - 2.5rem, var(--page)); margin-inline:auto; }
 .col{ max-width:var(--wide); }
 
@@ -140,25 +142,30 @@ a:hover{ text-decoration-thickness:2px; }
 .band--tight{ padding-block:var(--sp-l); }
 .band--defer{ content-visibility:auto; contain-intrinsic-size:auto 600px; }
 
-/* Hero band: takes real vertical room so the page opens with air.
-   svh = small viewport height; correct on mobile browser chrome. */
 .band--hero{
-  min-height:min(52svh, 34rem);
+  min-height:min(46svh, 30rem);
   display:grid;
   align-content:center;
   padding-block:var(--sp-l) var(--sp-xl);
 }
 
-.sheet, .card{
+/* Paper surfaces. ALL reading text lives on one of these. */
+.sheet, .card, .open{
   background:var(--paper);
-  border:1px solid rgba(23,21,15,.10);
+  border:1px solid rgba(20,18,12,.12);
   border-radius:2px;
 }
 .sheet{ padding:clamp(1.5rem, 5vw, 3.5rem); }
 .card{ padding:clamp(1.25rem, 3.5vw, 2.25rem); }
 .card--alt{ background:var(--paper-2); }
 
-.open{ max-width:var(--wide); }
+/* .open = the lighter surface: hero, identity moments, closing quotes.
+   Paper like everything else, but with more generous padding so it
+   reads as a poster panel, not a text card. */
+.open{
+  max-width:var(--wide);
+  padding:clamp(1.75rem, 5.5vw, 3.25rem);
+}
 
 /* ---------- 5. MASTHEAD + STICKY NAV ---------- */
 .masthead{ padding-top:var(--sp-l); text-align:center; }
@@ -174,8 +181,6 @@ a:hover{ text-decoration-thickness:2px; }
 .rules hr:first-child{ height:4px; }
 .rules hr:last-child{ height:1px; margin-top:3px; }
 
-/* The nav strip stays with you. Background matches the page, so at the
-   top it reads as part of the masthead; a hairline fades in on scroll. */
 .nav{
   position:sticky; top:0; z-index:40;
   background:var(--gold);
@@ -191,13 +196,12 @@ a:hover{ text-decoration-thickness:2px; }
   text-decoration:none; padding:.4rem 0;
   border-bottom:2px solid transparent;
 }
-.nav a:hover{ border-bottom-color:rgba(23,21,15,.35); }
+.nav a:hover{ border-bottom-color:rgba(20,18,12,.35); }
 .nav a[aria-current="page"]{ border-bottom-color:var(--ink); }
 
-/* Hairline under the sticky nav, driven by page scroll. No JS. */
 .nav::after{
   content:""; position:absolute; inset:auto 0 0 0; height:1px;
-  background:rgba(23,21,15,.35); opacity:0;
+  background:rgba(20,18,12,.35); opacity:0;
 }
 @supports (animation-timeline: scroll()){
   @media (prefers-reduced-motion:no-preference){
@@ -279,7 +283,7 @@ a:hover{ text-decoration-thickness:2px; }
   transform:rotate(-45deg) translateY(-50%);
 }
 
-/* ---------- 9. QUOTE ---------- */
+/* ---------- 9. QUOTES & EXHIBIT ---------- */
 .quote{
   margin:0; max-width:38rem;
   font-family:"Zilla Slab", Georgia, serif;
@@ -293,7 +297,6 @@ a:hover{ text-decoration-thickness:2px; }
   color:var(--ink-2);
 }
 
-/* The receipts: a document exhibit — dated, bordered, unmistakable */
 .exhibit{
   margin:var(--sp-m) 0;
   padding:var(--sp-m);
@@ -314,7 +317,7 @@ a:hover{ text-decoration-thickness:2px; }
   margin-top:var(--sp-l);
   padding-top:var(--sp-s);
   border-top:1px solid var(--hair);
-  scroll-margin-top:5rem;   /* clears the sticky nav */
+  scroll-margin-top:5rem;
 }
 .article > h2:first-of-type,
 .article-body > h2:first-of-type{ border-top:0; padding-top:0; margin-top:0; }
@@ -334,8 +337,6 @@ a:hover{ text-decoration-thickness:2px; }
 }
 .toc a:hover{ text-decoration-color:currentColor; }
 
-/* Wide screens: contents becomes a sticky rail beside the article,
-   so long pages navigate like a document, not a scroll of doom. */
 @media (min-width:64rem){
   .article-grid{
     display:grid;
@@ -346,11 +347,9 @@ a:hover{ text-decoration-thickness:2px; }
   .article-grid .toc{
     position:sticky; top:4.25rem;
     padding-top:.25rem;
-    border-top:0;
   }
 }
 
-/* Sources — the trust play. Small, quiet, present. */
 .sources{
   margin-top:var(--sp-l);
   padding-top:var(--sp-s);
@@ -372,12 +371,12 @@ a:hover{ text-decoration-thickness:2px; }
 }
 .votebar a{ color:var(--gold); }
 
-.footer{ padding-block:var(--sp-l); border-top:1px solid rgba(23,21,15,.25); }
+.footer{ padding-block:var(--sp-l); border-top:1px solid rgba(20,18,12,.3); }
 .footer ul{ list-style:none; margin:0 0 var(--sp-s); padding:0; display:flex; flex-wrap:wrap; gap:.4rem 1.5rem; }
 .footer a{ font-size:var(--step--1); font-weight:600; }
 .disclaimer{
   margin:0; font-size:var(--step--1); font-weight:700;
-  letter-spacing:.1em; text-transform:uppercase; color:var(--ink-2);
+  letter-spacing:.1em; text-transform:uppercase; color:var(--ink);
   max-width:none;
 }
 
@@ -390,13 +389,7 @@ a:hover{ text-decoration-thickness:2px; }
   .portrait{ float:right; width:17rem; margin:.4rem 0 var(--sp-s) var(--sp-l); shape-outside:margin-box; }
 }
 
-/* ---------- 14. MOTION ----------
-   Two moments only:
-   1) The page opens: hero rises once.
-   2) As you read: each sheet eases in as it enters the viewport —
-      scroll-driven, compositor-only, zero JavaScript.
-   Everything is visible by default; browsers without support, and
-   readers who prefer reduced motion, get a perfectly still page. */
+/* ---------- 14. MOTION ---------- */
 @media (prefers-reduced-motion:no-preference){
   .rise{ animation:rise .55s var(--spring) both; }
   @keyframes rise{ from{ opacity:0; transform:translateY(12px); } to{ opacity:1; transform:none; } }
@@ -415,7 +408,6 @@ a:hover{ text-decoration-thickness:2px; }
     }
   }
 
-  /* Soft cross-fade between pages; the nameplate carries across. */
   @view-transition{ navigation:auto; }
   .nameplate{ view-transition-name:nameplate; }
 }
@@ -425,7 +417,6 @@ a:hover{ text-decoration-thickness:2px; }
   *,*::before,*::after{ animation-duration:.01ms !important; transition-duration:.01ms !important; }
 }
 
-/* Reading progress on long articles — scroll-driven, no JS. */
 .progress{ display:none; }
 @supports (animation-timeline: scroll()){
   @media (prefers-reduced-motion:no-preference){
@@ -443,7 +434,7 @@ a:hover{ text-decoration-thickness:2px; }
 @media print{
   body{ background:#fff; color:#000; font-size:11pt; line-height:1.45; }
   .nav,.btns,.votebar,.progress,.toc,.skip,.signup{ display:none; }
-  .sheet,.card,.exhibit{ border:0; padding:0; background:#fff; }
+  .sheet,.card,.open,.exhibit{ border:0; padding:0; background:#fff; }
   .wrap{ width:100%; }
   p,.entry p{ max-width:none; }
   h1,h2,h3{ break-after:avoid; }
