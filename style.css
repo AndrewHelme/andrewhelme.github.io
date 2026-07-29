@@ -1,28 +1,25 @@
 /* ==========================================================
    COLLINS FOR COUNTY COUNCIL — DISTRICT 2
-   Shared stylesheet · v5
+   Shared stylesheet · v6
    ⚠ REPLACE THE ENTIRE style.css FILE WITH THIS.
-   If the live site's /style.css does not begin with this exact
-   header, this file is not deployed yet.
+   Verify after deploy: collinsforcouncil.com/style.css must
+   begin with "v6". If it doesn't, it isn't live yet.
 
-   TYPE SYSTEM — three faces, three jobs:
-     Ultra ......... nameplate, one H1 per page, ledger figures
-     Zilla Slab .... section headings, pull quotes
-     Open Sans ..... reading text, nav, buttons, captions
-
-   READABILITY RULE (v5):
-     Reading text never sits on the gold. Every paragraph lives
-     on a paper surface. Gold is the field BETWEEN sections.
-
-   MOTION: CSS-only, guarded by @supports and reduced-motion.
+   WHAT v6 DOES (on top of v5):
+   · One centered column — every surface aligns to the same axis
+   · Masthead signature: rules draw themselves, nameplate gets a
+     one-time sheen, faint light wash at the top of the page
+   · Reading text NEVER sits on the gold; no faded ink on gold
+   · Motion smoothed: shorter travel, no overshoot, gentler ranges
    ========================================================== */
 
 /* ---------- 1. TOKENS ---------- */
 :root{
   --gold:      #C9A227;
+  --gold-hi:   #D6B13A;   /* the light: top-of-page wash only */
   --gold-deep: #8A6D12;
   --ink:       #14120C;
-  --ink-2:     #5A5342;   /* secondary text — used on paper only, never on gold */
+  --ink-2:     #5A5342;   /* paper surfaces only — never on gold */
   --paper:     #FDFBF4;
   --paper-2:   #F4EEDC;
   --hair:      rgba(20,18,12,.16);
@@ -50,8 +47,9 @@
   --wide:    46rem;
   --page:    70rem;
 
-  --spring: linear(0, .22 9%, .48 18%, .74 28%, .92 40%, 1.01 55%, 1 100%);
-  --ease:   cubic-bezier(.22, 1, .36, 1);
+  /* Smoothed spring — eases out with no overshoot */
+  --spring: linear(0, .28 12%, .57 24%, .8 38%, .94 55%, 1 100%);
+  --ease:   cubic-bezier(.25, .9, .35, 1);
 }
 
 /* ---------- 2. BASE ---------- */
@@ -65,7 +63,10 @@ html{
 
 body{
   margin:0;
-  background:var(--gold);
+  background-color:var(--gold);
+  /* A faint light falling on the top of the page. That's the whole trick. */
+  background-image:radial-gradient(110% 46rem at 50% -12rem, var(--gold-hi), rgba(214,177,58,0) 62%);
+  background-repeat:no-repeat;
   color:var(--ink);
   font-family:"Open Sans", system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
   font-size:var(--step-0);
@@ -134,16 +135,17 @@ a:hover{ text-decoration-thickness:2px; }
 }
 .skip:focus{ left:0; }
 
-/* ---------- 4. LAYOUT & SURFACES ---------- */
+/* ---------- 4. LAYOUT & SURFACES ----------
+   One column, one axis. Every surface centers itself. */
 .wrap{ width:min(100% - 2.5rem, var(--page)); margin-inline:auto; }
-.col{ max-width:var(--wide); }
+.col{ max-width:var(--wide); margin-inline:auto; }
 
 .band{ padding-block:var(--sp-xl); }
 .band--tight{ padding-block:var(--sp-l); }
 .band--defer{ content-visibility:auto; contain-intrinsic-size:auto 600px; }
 
 .band--hero{
-  min-height:min(46svh, 30rem);
+  min-height:min(42svh, 28rem);
   display:grid;
   align-content:center;
   padding-block:var(--sp-l) var(--sp-xl);
@@ -154,32 +156,63 @@ a:hover{ text-decoration-thickness:2px; }
   background:var(--paper);
   border:1px solid rgba(20,18,12,.12);
   border-radius:2px;
+  max-width:var(--wide);
+  margin-inline:auto;
 }
-.sheet{ padding:clamp(1.5rem, 5vw, 3.5rem); }
+.sheet{ padding:clamp(1.5rem, 5vw, 3.25rem); }
 .card{ padding:clamp(1.25rem, 3.5vw, 2.25rem); }
 .card--alt{ background:var(--paper-2); }
 
-/* .open = the lighter surface: hero, identity moments, closing quotes.
-   Paper like everything else, but with more generous padding so it
-   reads as a poster panel, not a text card. */
-.open{
-  max-width:var(--wide);
-  padding:clamp(1.75rem, 5.5vw, 3.25rem);
-}
+/* The tax-bill page: contents rail + article need a wider sheet */
+.sheet:has(.article-grid){ max-width:64rem; }
 
-/* ---------- 5. MASTHEAD + STICKY NAV ---------- */
+/* .open = poster panels: hero, identity, closing quotes */
+.open{ padding:clamp(1.75rem, 5.5vw, 3.25rem); }
+
+/* ---------- 5. MASTHEAD — the signature ---------- */
 .masthead{ padding-top:var(--sp-l); text-align:center; }
+.masthead p{ max-width:none; }   /* free the nameplate & office from the prose cap */
+
 .nameplate{ font-size:var(--step-6); margin:0; line-height:.9; }
-.nameplate a{ text-decoration:none; }
+.nameplate a{ text-decoration:none; color:var(--ink); }
 .office{
   font-weight:700; letter-spacing:.1em; text-transform:uppercase;
   font-size:clamp(.8rem, 2.4vw, 1.05rem);
   margin:var(--sp-2xs) 0 0;
 }
-.rules{ margin:var(--sp-s) 0 0; }
+
+.rules{ margin:var(--sp-s) auto 0; max-width:var(--page); }
 .rules hr{ border:0; background:var(--ink); margin:0; }
 .rules hr:first-child{ height:4px; }
 .rules hr:last-child{ height:1px; margin-top:3px; }
+
+/* On load, once: the rules draw themselves like pen strokes,
+   and a single sheen of light crosses the nameplate. Then still. */
+@media (prefers-reduced-motion:no-preference){
+  .rules hr{
+    transform-origin:left center;
+    animation:draw .8s var(--ease) both;
+  }
+  .rules hr:last-child{ animation-delay:.15s; }
+  @keyframes draw{ from{ transform:scaleX(0); } to{ transform:scaleX(1); } }
+
+  @supports ((-webkit-background-clip:text) or (background-clip:text)){
+    .nameplate a{
+      background:linear-gradient(105deg,
+        var(--ink) 42%, #4a4128 50%, var(--ink) 58%);
+      background-size:280% 100%;
+      background-position:120% 0;
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+      animation:sheen 1.4s var(--ease) .5s 1 both;
+    }
+    @keyframes sheen{
+      from{ background-position:120% 0; }
+      to{ background-position:-60% 0; }
+    }
+  }
+}
 
 .nav{
   position:sticky; top:0; z-index:40;
@@ -195,6 +228,7 @@ a:hover{ text-decoration-thickness:2px; }
   font-weight:700; letter-spacing:.08em; text-transform:uppercase;
   text-decoration:none; padding:.4rem 0;
   border-bottom:2px solid transparent;
+  transition:border-color .15s var(--ease);
 }
 .nav a:hover{ border-bottom-color:rgba(20,18,12,.35); }
 .nav a[aria-current="page"]{ border-bottom-color:var(--ink); }
@@ -274,13 +308,15 @@ a:hover{ text-decoration-thickness:2px; }
 .plank p{ margin:0; }
 
 .marks{ list-style:none; margin:var(--sp-s) 0; padding:0; max-width:var(--measure); }
-.marks li{ position:relative; padding:.5rem 0 .5rem 1.75rem; border-bottom:1px solid var(--hair); }
+.marks li{ position:relative; padding:.5rem 0 .5rem 1.8rem; border-bottom:1px solid var(--hair); }
 .marks li:last-child{ border-bottom:0; }
+/* A proper checkmark — wider than tall, drawn in ink */
 .marks li::before{
-  content:""; position:absolute; left:.15rem; top:1.15em;
-  width:.55rem; height:.55rem;
-  border-bottom:2px solid var(--ink); border-left:2px solid var(--ink);
-  transform:rotate(-45deg) translateY(-50%);
+  content:""; position:absolute; left:.1rem; top:.95em;
+  width:.7rem; height:.35rem;
+  border-bottom:2.5px solid var(--ink);
+  border-left:2.5px solid var(--ink);
+  transform:rotate(-48deg);
 }
 
 /* ---------- 9. QUOTES & EXHIBIT ---------- */
@@ -359,7 +395,7 @@ a:hover{ text-decoration-thickness:2px; }
 .sources li{ font-size:var(--step--1); color:var(--ink-2); padding:.2rem 0; }
 
 /* ---------- 11. SIGNUP ---------- */
-.signup{ max-width:var(--wide); }
+.signup{ max-width:var(--wide); margin-inline:auto; }
 .signup .card{ border-left:4px solid var(--ink); }
 
 /* ---------- 12. VOTE BAR + FOOTER ---------- */
@@ -371,11 +407,18 @@ a:hover{ text-decoration-thickness:2px; }
 }
 .votebar a{ color:var(--gold); }
 
-.footer{ padding-block:var(--sp-l); border-top:1px solid rgba(20,18,12,.3); }
-.footer ul{ list-style:none; margin:0 0 var(--sp-s); padding:0; display:flex; flex-wrap:wrap; gap:.4rem 1.5rem; }
+.footer{
+  padding-block:var(--sp-l);
+  border-top:1px solid rgba(20,18,12,.3);
+  text-align:center;
+}
+.footer ul{
+  list-style:none; margin:0 0 var(--sp-s); padding:0;
+  display:flex; flex-wrap:wrap; justify-content:center; gap:.4rem 1.5rem;
+}
 .footer a{ font-size:var(--step--1); font-weight:600; }
 .disclaimer{
-  margin:0; font-size:var(--step--1); font-weight:700;
+  margin:0 auto; font-size:var(--step--1); font-weight:700;
   letter-spacing:.1em; text-transform:uppercase; color:var(--ink);
   max-width:none;
 }
@@ -383,16 +426,17 @@ a:hover{ text-decoration-thickness:2px; }
 /* ---------- 13. PORTRAIT ---------- */
 .portrait{
   float:none; width:100%; max-width:20rem;
-  margin:0 0 var(--sp-m); border-radius:2px;
+  margin:0 auto var(--sp-m); border-radius:2px;
 }
 @media (min-width:48rem){
   .portrait{ float:right; width:17rem; margin:.4rem 0 var(--sp-s) var(--sp-l); shape-outside:margin-box; }
 }
 
-/* ---------- 14. MOTION ---------- */
+/* ---------- 14. MOTION ----------
+   Calmer travel, no overshoot, wider ranges = no jumps. */
 @media (prefers-reduced-motion:no-preference){
-  .rise{ animation:rise .55s var(--spring) both; }
-  @keyframes rise{ from{ opacity:0; transform:translateY(12px); } to{ opacity:1; transform:none; } }
+  .rise{ animation:rise .6s var(--spring) both; }
+  @keyframes rise{ from{ opacity:0; transform:translateY(10px); } to{ opacity:1; transform:none; } }
 
   @supports (animation-timeline: view()){
     .band--defer .sheet,
@@ -400,10 +444,10 @@ a:hover{ text-decoration-thickness:2px; }
     .band--defer .open{
       animation:inview both var(--ease);
       animation-timeline:view();
-      animation-range:entry 5% entry 45%;
+      animation-range:entry 0% entry 55%;
     }
     @keyframes inview{
-      from{ opacity:0; transform:translateY(16px); }
+      from{ opacity:.15; transform:translateY(8px); }
       to{ opacity:1; transform:none; }
     }
   }
