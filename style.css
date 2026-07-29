@@ -1,9 +1,9 @@
 /* ==========================================================
    COLLINS FOR COUNTY COUNCIL — DISTRICT 2
-   Shared stylesheet · v6
+   Shared stylesheet · v7
    ⚠ REPLACE THE ENTIRE style.css FILE WITH THIS.
    Verify after deploy: collinsforcouncil.com/style.css must
-   begin with "v6". If it doesn't, it isn't live yet.
+   begin with "v7". If it doesn't, it isn't live yet.
 
    WHAT v6 DOES (on top of v5):
    · One centered column — every surface aligns to the same axis
@@ -474,7 +474,44 @@ a:hover{ text-decoration-thickness:2px; }
   }
 }
 
-/* ---------- 15. PRINT ---------- */
+/* ---------- 15. DESKTOP LAYER ----------
+   Everything above is written mobile-first. This section is what
+   makes a wide screen feel designed rather than stretched.
+   Nothing here changes the HTML — layout belongs in CSS. */
+
+/* 15a. Tablet and up: sheets breathe wider.
+   Prose stays capped at 66ch INSIDE them, so lines never get long. */
+@media (min-width:64rem){
+  .sheet, .card, .open{ max-width:52rem; }
+  .ledger{ max-width:52rem; }
+  .sheet:has(.article-grid){ max-width:66rem; }
+  .signup{ max-width:52rem; }
+
+  /* A proper newspaper masthead: bigger nameplate, wider tracking */
+  .nameplate{ font-size:clamp(4.2rem, 5.6vw, 5.6rem); }
+  .office{ font-size:1.1rem; letter-spacing:.18em; }
+
+  /* The hero earns more room and a larger headline */
+  .band--hero{ min-height:min(48svh, 32rem); }
+  .band--hero h1{ font-size:clamp(2.9rem, 4.2vw, 3.9rem); }
+  .band--hero .open{ padding:clamp(2.5rem, 4vw, 3.5rem); }
+
+  /* More air between sections when there's room for it */
+  .band{ padding-block:var(--sp-2xl); }
+  .band--tight{ padding-block:var(--sp-xl); }
+}
+
+/* 15b. Large desktop: scale the entire system up one notch.
+   Changing the root size scales type, spacing and max-widths together,
+   because every value in this sheet is expressed in rem. */
+@media (min-width:90rem){
+  :root{ font-size:106.25%; }   /* 17px base */
+}
+@media (min-width:120rem){
+  :root{ font-size:112.5%; }    /* 18px base */
+}
+
+/* ---------- 16. PRINT ---------- */
 @media print{
   body{ background:#fff; color:#000; font-size:11pt; line-height:1.45; }
   .nav,.btns,.votebar,.progress,.toc,.skip,.signup{ display:none; }
